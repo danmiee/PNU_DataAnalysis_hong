@@ -221,6 +221,9 @@ table(result_pred, test$RainTomorrow)
 install.packages("ROCR")
 library(ROCR)
 
+# NA값 처리
+pred[is.na(pred)] <- 0
+
 pr <- prediction(pred, test$RainTomorrow)
 prf <- performance(pr, measure = "tpr", x.maeasure = "fpr")
 plot(prf)
@@ -298,6 +301,7 @@ table(cross$which)
 R = 1:2
 K = 1:3
 CNT = 0
+
 ACC <- numeric()
 
 for(r in R) {
@@ -451,64 +455,64 @@ table(weather_pred2, weather$RainTomorrow)
 (278 + 53) / nrow(weather)
 
 
-
-# 실습: 랜덤 포레스트 기본 모델 생성
-# 단계 1: 패키지 설치 및 데이터 셋 가져오기 
-install.packages("randomForest")
-library(randomForest)
-data(iris)
-
-# 단계 2: 랜덤 포레스트 모데 ㄹ생성
-model <- randomForest(Species ~ ., data = iris)
-model
-
-
-
-# 실습: 파라미터 조정 - 트리 개수 300개, 변수 개수 4개 지정  
-model2 <- randomForest(Species ~ ., data = iris,
-                       ntree = 300, mtry = 4, na.action = na.omit)
-model2
-
-# 실습: 중요 변수를 생성하여 랜덤 포레스트 모델 생성 
-# 단계 1: 중요 변수로 랜덤 포레스트 모델 생성
-model3 <- randomForest(Species ~ ., data = iris,
-                       importance = T, na.action = na.omit)
-
-# 단계 2: 중요 변수 보기 
-importance(model3)
- 
-# 단계 3: 중요 변수 시각화
-varImpPlot(model3)
-
-
-### 엔트포리(Entropy): 불확실성
-x1 <- 0.5; x2 <- 0.5 
-e1 <- -x1 * log2(x1) - x2 * log2(x2)
-e1
-
-x1 <- 0.7; x2 <- 0.3               
-e2 <- -x1 * log2(x1) - x2 * log2(x2)
-e2
-
-
-
-# 실습: ;최적의 파라미터(ntree, mtry) 찾기 
-# 단계 1: 속성값 생성
-ntree <- c(400, 500, 600)
-mtry <- c(2:4)
-param <- data.frame(n = ntree, m = mtry)
-param
-
-# 단계 2: 이중 for() 함수를 이용하여 모델 생성
-for(i in param$n) {
-  cat('ntree =', i, '\n')
-  for(j in param$m) {
-    cat('mtry =', j, '\n')
-    model_iris <- randomForest(Species ~ ., data = iris,
-                               ntree = i, mtry = j, na.action = na.omit)
-    print(model_iris)
-  }
-}
+# 
+# # 실습: 랜덤 포레스트 기본 모델 생성
+# # 단계 1: 패키지 설치 및 데이터 셋 가져오기 
+# install.packages("randomForest")
+# library(randomForest)
+# data(iris)
+# 
+# # 단계 2: 랜덤 포레스트 모델 생성
+# model <- randomForest(Species ~ ., data = iris)
+# model
+# 
+# 
+# 
+# # 실습: 파라미터 조정 - 트리 개수 300개, 변수 개수 4개 지정  
+# model2 <- randomForest(Species ~ ., data = iris,
+#                        ntree = 300, mtry = 4, na.action = na.omit)
+# model2
+# 
+# # 실습: 중요 변수를 생성하여 랜덤 포레스트 모델 생성 
+# # 단계 1: 중요 변수로 랜덤 포레스트 모델 생성
+# model3 <- randomForest(Species ~ ., data = iris,
+#                        importance = T, na.action = na.omit)
+# 
+# # 단계 2: 중요 변수 보기 
+# importance(model3)
+#  
+# # 단계 3: 중요 변수 시각화
+# varImpPlot(model3)
+# 
+# 
+# ### 엔트포리(Entropy): 불확실성
+# x1 <- 0.5; x2 <- 0.5 
+# e1 <- -x1 * log2(x1) - x2 * log2(x2)
+# e1
+# 
+# x1 <- 0.7; x2 <- 0.3               
+# e2 <- -x1 * log2(x1) - x2 * log2(x2)
+# e2
+# 
+# 
+# 
+# # 실습: ;최적의 파라미터(ntree, mtry) 찾기 
+# # 단계 1: 속성값 생성
+# ntree <- c(400, 500, 600)
+# mtry <- c(2:4)
+# param <- data.frame(n = ntree, m = mtry)
+# param
+# 
+# # 단계 2: 이중 for() 함수를 이용하여 모델 생성
+# for(i in param$n) {
+#   cat('ntree =', i, '\n')
+#   for(j in param$m) {
+#     cat('mtry =', j, '\n')
+#     model_iris <- randomForest(Species ~ ., data = iris,
+#                                ntree = i, mtry = j, na.action = na.omit)
+#     print(model_iris)
+#   }
+# }
 
 
 # 실습: 다향 분류 xgboost 모델 생성
@@ -681,23 +685,23 @@ model_net
 plot(model_net)
 
 
-# 단계 6: 분류모델 성능 평가
-# 단계 6-1: 모델의 예측치 생성 - compute() 함수 이용 
-model_result <- compute(model_net, testing_nor[c(1:4)])
-model_result$net.result
-
-# 단계 6-2: 상관관계 분석 - 상관계수로 두 변수 간 선형관계의 강도 측정
-cor(model_result$net.result, testing_nor$Species2)
-
-# 단계 7: 분류모델 성능 향상 - 은닉층 노드 2개 지정, backprop 속성 적용
-# 단계 7-1: 인공신경망 모델 생성
-model_net2 = neuralnet(Species2 ~ Sepal.Length + Sepal.Width +
-                         Petal.Length + Petal.Width, 
-                       data = training_nor, hidden = 2, 
-                       algorithm = "backprop", learningrate = 0.01)
-
-# 단계 7-2: 분류모델 예측치 생성과 평가 
-model_result <- compute(model_net, testing_nor[c(1:4)])
-cor(model_result$net.result, testing_nor$Species2)
-
+# # 단계 6: 분류모델 성능 평가
+# # 단계 6-1: 모델의 예측치 생성 - compute() 함수 이용 
+# model_result <- compute(model_net, testing_nor[c(1:4)])
+# model_result$net.result
+# 
+# # 단계 6-2: 상관관계 분석 - 상관계수로 두 변수 간 선형관계의 강도 측정
+# cor(model_result$net.result, testing_nor$Species2)
+# 
+# # 단계 7: 분류모델 성능 향상 - 은닉층 노드 2개 지정, backprop 속성 적용
+# # 단계 7-1: 인공신경망 모델 생성
+# model_net2 = neuralnet(Species2 ~ Sepal.Length + Sepal.Width +
+#                          Petal.Length + Petal.Width, 
+#                        data = training_nor, hidden = 2, 
+#                        algorithm = "backprop", learningrate = 0.01)
+# 
+# # 단계 7-2: 분류모델 예측치 생성과 평가 
+# model_result <- compute(model_net, testing_nor[c(1:4)])
+# cor(model_result$net.result, testing_nor$Species2)
+# 
 
